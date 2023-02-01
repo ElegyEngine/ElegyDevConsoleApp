@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2023 Admer Šuko
+// SPDX-License-Identifier: MIT
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>

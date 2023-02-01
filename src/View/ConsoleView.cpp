@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2023 Admer Šuko
+// SPDX-License-Identifier: MIT
 
 #include "ConsoleView.hpp"
 #include <chrono>
