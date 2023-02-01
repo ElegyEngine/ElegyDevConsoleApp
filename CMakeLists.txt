@@ -32,6 +32,10 @@ set_target_properties( enet PROPERTIES FOLDER "ENet" )
 
 ## Elegy.DevConsoleApp stuff
 set( DEVCONAPP_SOURCES
+	${ELG_ROOT}/src/Model/ConsoleMessage.hpp
+	${ELG_ROOT}/src/View/ftxui/Scroller.hpp
+	${ELG_ROOT}/src/View/ConsoleView.hpp
+	${ELG_ROOT}/src/View/ConsoleView.cpp
 	${ELG_ROOT}/src/Main.cpp )
 
 ## Folder organisation
