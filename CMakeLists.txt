@@ -18,12 +18,17 @@ option( FTXUI_BUILD_EXAMPLES OFF )
 option( FTXUI_BUILD_DOCS OFF )
 option( FTXUI_ENABLE_INSTALL OFF )
 
-## The engine really only needs to link against 'component' here,
+## We really only need to link against 'component' here,
 ## so we don't need to link against all 3 individually
 add_subdirectory( extern/FTXUI )
-set_target_properties( screen PROPERTIES FOLDER "Libs/FTXUI" )
-set_target_properties( dom PROPERTIES FOLDER "Libs/FTXUI" )
-set_target_properties( component PROPERTIES FOLDER "Libs/FTXUI" )
+set_target_properties( screen PROPERTIES FOLDER "FTXUI" )
+set_target_properties( dom PROPERTIES FOLDER "FTXUI" )
+set_target_properties( component PROPERTIES FOLDER "FTXUI" )
+
+## ENet (LSalzman's ENet 1.3.17, the one Godot uses - an important detail)
+## In the near future we might as well just directly copy Godot's ENet, but this works for now
+add_subdirectory( extern/enet )
+set_target_properties( enet PROPERTIES FOLDER "ENet" )
 
 ## Elegy.DevConsoleApp stuff
 set( DEVCONAPP_SOURCES
@@ -38,10 +43,11 @@ add_executable( Elegy.DevConsoleApp ${DEVCONAPP_SOURCES} )
 ## Include ENet
 target_include_directories( Elegy.DevConsoleApp PRIVATE
 	${ELG_ROOT}
-	${ELG_ROOT}/extern/enet-zpl )
+	${ELG_ROOT}/src
+	${ELG_ROOT}/extern/enet/include )
 
 ## Link against FTXUI
-target_link_libraries( Elegy.DevConsoleApp ftxui::component )
+target_link_libraries( Elegy.DevConsoleApp enet ftxui::component )
 
 ## Output here
 install( TARGETS Elegy.DevConsoleApp
