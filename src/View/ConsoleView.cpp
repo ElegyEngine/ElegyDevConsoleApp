@@ -30,8 +30,12 @@ namespace chrono = std::chrono;
 // ============================
 // ConsoleView::Init
 // ============================
-void ConsoleView::Init()
+void ConsoleView::Init( std::function<OnCommandSubmitFn> commandSubmit,
+	std::function<OnAutocompleteRequestFn> autocompleteRequest )
 {
+	onCommandSubmit = commandSubmit;
+	onAutocompleteRequest = autocompleteRequest;
+
 	consoleTitleComponent = Renderer( [&]
 		{
 			return hbox(
@@ -106,6 +110,8 @@ void ConsoleView::Init()
 				} ) | borderDouble;
 		} );
 
+	Wait( 0.1f );
+
 	listenerThread = std::thread( [&]
 		{
 			// Don't immediately render text, wait for a little bit
@@ -116,6 +122,8 @@ void ConsoleView::Init()
 
 			screen.Loop( mainComponent );
 		} );
+
+	Wait( 0.1f );
 }
 
 // ============================
@@ -132,7 +140,7 @@ void ConsoleView::Shutdown()
 }
 
 // ============================
-// ConsoleView:OnLog
+// ConsoleView::OnLog
 // ============================
 void ConsoleView::OnLog( const ConsoleMessage& message )
 {
@@ -166,6 +174,14 @@ bool ConsoleView::OnUpdate( const float& deltaTime )
 	}
 
 	return true;
+}
+
+// ============================
+// ConsoleView::SetAutocompleteBuffer
+// ============================
+void ConsoleView::SetAutocompleteBuffer( const std::vector<std::string>& buffer )
+{
+	autocompleteBuffer = buffer;
 }
 
 // ============================
@@ -232,23 +248,18 @@ void ConsoleView::ConsumeCommand()
 		return;
 	}
 
-	// TODO: Implement when we can actually send packets to DevConsole
-	/*
 	if ( !IsInputValid() )
 	{
 		if ( !userInput.empty() )
 		{
-			console->Print( adm::format( "%sInvalid command '%s'", PrintYellow, userInput.c_str() ) );
+			OnLog( { std::string( "$yInvalid command: '" ).append( userInput ).append( "'" ) } );
 			userInput.clear();
 		}
 		return;
 	}
 
-	const std::string commandName = GetCommandName();
-	const std::string commandArgs = userInput.size() > commandName.size() ? userInput.substr( commandName.size() ) : "";
-	console->Execute( commandName, commandArgs );
+	onCommandSubmit( userInput );
 	userInput.clear();
-	*/
 }
 
 // ============================
@@ -256,16 +267,15 @@ void ConsoleView::ConsumeCommand()
 // ============================
 void ConsoleView::UpdateAutocomplete()
 {
-	//if ( !IsInputValid() )
+	if ( !IsInputValid() )
 	{
 		autocompleteElement = text( "" );
 		return;
 	}
 
-	// TODO: Implement when we can actually send packets to DevConsole
-	/*
-	auto cvars = console->Search( GetCommandName() );
-	if ( cvars.empty() )
+	onAutocompleteRequest( userInput );
+
+	if ( autocompleteBuffer.empty() )
 	{
 		autocompleteElement = window( 
 			text( "Autocomplete" ), 
@@ -281,31 +291,47 @@ void ConsoleView::UpdateAutocomplete()
 	Element commandBox = text( "" );
 	Elements variables{};
 	Elements commands{};
-	for ( const auto* cvar : cvars )
+
+	// In the autocomplete buffer, we have strings of this format:
+	// cvar_name#flags&value
+	// e.g. my_cvar#ri&100
+	for ( const std::string& cvar : autocompleteBuffer )
 	{
-		if ( cvar->IsCommand() )
+		size_t flagPosition = cvar.find( '#' );
+		size_t valuePosition = cvar.find( '&' );
+
+		if ( flagPosition == std::string::npos
+			|| valuePosition == std::string::npos
+			|| flagPosition >= valuePosition )
 		{
-			commands.emplace_back( text( std::string( cvar->GetName() ) ) );
+			continue;
+		}
+
+		std::string name = cvar.substr( 0, flagPosition );
+		std::string value = cvar.substr( valuePosition );
+
+		if ( cvar.find( 'c', flagPosition ) )
+		{
+			commands.emplace_back( text( name ) );
 			continue;
 		}
 
 		constexpr int ValueWidth = 6;
 
-		std::string cvarValue = std::string( cvar->GetString() );
-		if ( cvarValue.size() > ValueWidth )
+		if ( value.size() > ValueWidth )
 		{
-			cvarValue = cvarValue.substr( 0, ValueWidth );
-			cvarValue[ValueWidth-1] = '.';
-			cvarValue[ValueWidth-2] = '.';
-			cvarValue[ValueWidth-3] = '.';
+			value = value.substr( 0, ValueWidth );
+			value[ValueWidth-1] = '.';
+			value[ValueWidth-2] = '.';
+			value[ValueWidth-3] = '.';
 		}
 
-		const bool readOnly = cvar->GetFlags() & CVarFlags::ReadOnly;
+		const bool readOnly = cvar.find( 'r', flagPosition );
 		Element vtext = hbox( {
-				text( std::string( cvar->GetName() ) ),
+				text( std::string( name ) ),
 				text( readOnly ? " (read-only)" : "" ),
 				filler() | xflex_shrink,
-				text( ": " + std::string( cvar->GetString() ) ) | size( WIDTH, EQUAL, ValueWidth + 2 ),
+				text( ": " + value ) | size( WIDTH, EQUAL, ValueWidth + 2 ),
 			} );
 
 		variables.push_back( std::move( vtext ) );
@@ -334,7 +360,6 @@ void ConsoleView::UpdateAutocomplete()
 		| color( Color::Yellow )
 		| size( HEIGHT, GREATER_THAN, 8 )
 		| size( WIDTH, GREATER_THAN, 16 );
-	*/
 }
 
 // ============================

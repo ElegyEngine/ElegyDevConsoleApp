@@ -15,11 +15,18 @@ using namespace ftxui;
 class ConsoleView final
 {
 public:
-	void Init();
+	// Called whenever a command is successfully submitted
+	using OnCommandSubmitFn = void( std::string_view command );
+	using OnAutocompleteRequestFn = void( std::string_view command );
+public:
+	void Init( std::function<OnCommandSubmitFn> commandSubmit,
+		std::function<OnAutocompleteRequestFn> autocompleteRequest );
 	void Shutdown();
 
 	void OnLog( const ConsoleMessage& message );
 	bool OnUpdate( const float& deltaTime );
+
+	void SetAutocompleteBuffer( const std::vector<std::string>& buffer );
 
 private:
 	// Handles CLI events i.e. input and scrolling
@@ -34,8 +41,12 @@ private:
 	static Element ConsoleMessageToFtxElement( const ConsoleMessage& message );
 
 private:
+	std::function<OnCommandSubmitFn> onCommandSubmit{ nullptr };
+	std::function<OnAutocompleteRequestFn> onAutocompleteRequest{ nullptr };
+
 	bool stopListening{ false };
 	std::vector<ConsoleMessage> messages{};
+	std::vector<std::string> autocompleteBuffer{};
 
 	std::thread listenerThread;
 	float timeToUpdate{ 0.1f };
