@@ -18,7 +18,18 @@ struct ConsoleMessageType final
 
 struct ConsoleMessage
 {
+	ConsoleMessage( std::string messageText = "", float messageTime = 0.0f, ConsoleMessageType::Enum messageType = ConsoleMessageType::Info )
+		: text( messageText ), timeSubmitted( messageTime ), type( messageType )
+	{
+	}
+
+	ConsoleMessage( const ConsoleMessage& message ) = default;
+	ConsoleMessage( ConsoleMessage&& message ) = default;
+
+	ConsoleMessage& operator=( const ConsoleMessage& message ) = default;
+	ConsoleMessage& operator=( ConsoleMessage&& message ) = default;
+
 	std::string text;
-	float timeSubmitted = 0.0f;
-	ConsoleMessageType::Enum type = ConsoleMessageType::Info;
+	float timeSubmitted;
+	ConsoleMessageType::Enum type;
 };
