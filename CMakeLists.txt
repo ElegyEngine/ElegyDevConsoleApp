@@ -36,7 +36,8 @@ set( DEVCONAPP_SOURCES
 	${ELG_ROOT}/src/View/ftxui/Scroller.hpp
 	${ELG_ROOT}/src/View/ConsoleView.hpp
 	${ELG_ROOT}/src/View/ConsoleView.cpp
-	${ELG_ROOT}/src/Main.cpp )
+	${ELG_ROOT}/src/Main.cpp
+	${ELG_ROOT}/src/Precompiled.hpp )
 
 ## Folder organisation
 source_group( TREE ${ELG_ROOT} FILES ${DEVCONAPP_SOURCES} )
@@ -52,6 +53,9 @@ target_include_directories( Elegy.DevConsoleApp PRIVATE
 
 ## Link against FTXUI
 target_link_libraries( Elegy.DevConsoleApp enet ftxui::component )
+
+## Precompiled header
+target_precompile_headers( Elegy.DevConsoleApp PRIVATE ${ELG_ROOT}/src/Precompiled.hpp )
 
 ## Output here
 install( TARGETS Elegy.DevConsoleApp

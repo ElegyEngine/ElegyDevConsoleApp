@@ -1,14 +1,7 @@
 // SPDX-FileCopyrightText: 2023 Admer Šuko
 // SPDX-License-Identifier: MIT
 
-// Windows is such cancer
-#ifdef WIN32
-#define		_WINSOCK_DEPRECATED_NO_WARNINGS
-#define		NOMINMAX
-#pragma		comment(lib, "Winmm.lib")
-#pragma		comment(lib, "Ws2_32.lib")
-#endif
-#include <enet/enet.h>
+#include "Precompiled.hpp"
 
 #include "View/ConsoleView.hpp"
 

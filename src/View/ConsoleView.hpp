@@ -9,8 +9,6 @@
 
 using namespace ftxui;
 
-#include "Model/ConsoleMessage.hpp"
-
 // ============================
 // ConsoleView
 // ============================
