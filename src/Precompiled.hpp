@@ -19,3 +19,5 @@
 #include "Model/ConsoleMessage.hpp"
 
 void Wait( float seconds );
+
+float Now();
