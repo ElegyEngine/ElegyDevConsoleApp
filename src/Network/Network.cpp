@@ -170,6 +170,13 @@ void Network::UpdateWhileConnected()
 				}
 			}
 		}
+		else if ( netEvent.type == ENET_EVENT_TYPE_DISCONNECT )
+		{
+			onReceiveMessage( { "$y[DevConsoleApp] Disconnected!" } );
+			onReceiveAutocomplete( {} );
+			state = State::Disconnecting;
+			return;
+		}
 	}
 
 	// Do not burn the CPU
