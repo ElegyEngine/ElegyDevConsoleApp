@@ -106,7 +106,7 @@ void Network::SubmitCommand( std::string_view command )
 void Network::UpdateWhileConnecting()
 {
 	ENetEvent netEvent{};
-	onReceiveMessage( { "$y[DevConsoleApp] Trying connection... (127.0.0.1:23005)" } );
+	onReceiveMessage( { "$y[DevConsoleApp] Trying connection... (127.0.0.1:23005)", Now() } );
 	
 	if ( nullptr == consoleBridgePeer )
 	{
@@ -115,12 +115,12 @@ void Network::UpdateWhileConnecting()
 
 	if ( enet_host_service( consoleAppHost, &netEvent, 1500 ) > 0 )
 	{
-		onReceiveMessage( { "$y[DevConsoleApp] $gSuccessfully connected to an instance of Elegy Engine" } );
+		onReceiveMessage( { "$y[DevConsoleApp] $gSuccessfully connected to an instance of Elegy Engine", Now() } );
 		state = State::Connected;
 		return;
 	}
 	
-	onReceiveMessage( { "$y[DevConsoleApp] Connection failed" } );
+	onReceiveMessage( { "$y[DevConsoleApp] Connection failed", Now() } );
 	enet_peer_reset( consoleBridgePeer );
 	consoleBridgePeer = nullptr;
 }
