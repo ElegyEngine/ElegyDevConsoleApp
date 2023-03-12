@@ -121,6 +121,8 @@ void Network::UpdateWhileConnecting()
 	}
 	
 	onReceiveMessage( { "$y[DevConsoleApp] Connection failed", Now() } );
+	Wait( 0.5f );
+
 	enet_peer_reset( consoleBridgePeer );
 	consoleBridgePeer = nullptr;
 }
@@ -130,6 +132,7 @@ void Network::UpdateWhileConnecting()
 // ============================
 void Network::UpdateWhileConnected()
 {
+	int numMessagesAdded = 0;
 	ENetEvent netEvent{};
 	while ( enet_host_service( consoleAppHost, &netEvent, 0 ) > 0 )
 	{
@@ -153,9 +156,19 @@ void Network::UpdateWhileConnected()
 				message.text = std::string( reinterpret_cast<const char*>(&data[4]), messageLength );
 
 				onReceiveMessage( message );
+				
+				// It's aesthetically pleasing to see them coming in batches
+				if ( ++numMessagesAdded >= 15 )
+				{
+					Wait( 0.015f );
+					numMessagesAdded = 0;
+				}
 			}
 		}
 	}
+
+	// Do not burn the CPU
+	Wait( 0.1f );
 }
 
 // ============================
