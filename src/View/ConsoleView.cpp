@@ -121,7 +121,7 @@ void ConsoleView::Init( std::function<OnCommandSubmitFn> commandSubmit,
 	listenerThread = std::thread( [&]
 		{
 			// Don't immediately render text, wait for a little bit
-			std::this_thread::sleep_for( chrono::milliseconds( 100 ) );
+			Wait( 0.1f );
 
 			OnLog( { "$y[DevConsoleApp] $gInitialised developer console app" } );
 			OnLog( { "$y[DevConsoleApp] $gType '!quit' to quit this console" } );
