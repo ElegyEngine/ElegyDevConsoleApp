@@ -155,7 +155,14 @@ void ConsoleView::OnLog( const ConsoleMessage& message )
 		Wait( 0.001f );
 	}
 
+	// Horrifically unoptimised, we should use a ring buffer
+	// However, it'll work for now
+	if ( messages.size() == 1024U )
+	{
+		messages.erase( messages.begin() );
+	}
 	messages.push_back( message );
+	
 	timeToUpdate = -1.0f; // update and scroll all the way down
 	jumpToBottom = true;
 }
