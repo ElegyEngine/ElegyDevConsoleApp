@@ -17,8 +17,17 @@ void Wait( float seconds )
 	this_thread::sleep_for( chrono::milliseconds( int( seconds * 1000.0f ) ) );
 }
 
+static chrono::time_point<chrono::system_clock> StartupTime;
+float Now()
+{
+	auto timeNow = chrono::system_clock::now();
+	return chrono::duration_cast<chrono::microseconds>(timeNow - StartupTime).count() / 1'000'000.0f;
+}
+
 int main()
 {
+	StartupTime = chrono::system_clock::now();
+
 	ConsoleView view{};
 	Network net{};
 
