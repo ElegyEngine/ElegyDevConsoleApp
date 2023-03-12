@@ -52,11 +52,17 @@ void ConsoleView::Init( std::function<OnCommandSubmitFn> commandSubmit,
 
 	messageFrameComponent = Renderer( [&]
 		{
+			isRenderingMessages = true;
+
 			Elements consoleMessageElements{};
-			for ( const auto& message : messages )
+			const size_t numMessagesThisMoment = messages.size();
+			for ( size_t i = 0U; i < numMessagesThisMoment; i++ )
 			{
-				consoleMessageElements.emplace_back( ConsoleMessageToFtxElement( message ) );
+				consoleMessageElements.emplace_back( ConsoleMessageToFtxElement( messages[i] ));
 			}
+
+			isRenderingMessages = false;
+
 			return vbox( std::move( consoleMessageElements ) );
 		} );
 	messageScrollerComponent = Scroller( messageFrameComponent );
@@ -144,6 +150,11 @@ void ConsoleView::Shutdown()
 // ============================
 void ConsoleView::OnLog( const ConsoleMessage& message )
 {
+	while ( isRenderingMessages )
+	{
+		Wait( 0.001f );
+	}
+
 	messages.push_back( message );
 	timeToUpdate = -1.0f; // update and scroll all the way down
 	jumpToBottom = true;

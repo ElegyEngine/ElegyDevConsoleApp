@@ -50,6 +50,8 @@ private:
 
 	std::thread listenerThread;
 	float timeToUpdate{ 0.1f };
+	// If true, the network thread will have to wait for rendering to be finished
+	bool isRenderingMessages{ false };
 	// The user has entered a new command, jump to bottom to see the output
 	bool jumpToBottom{ false };
 	// The user has entered a new command, execute it on the main thread
