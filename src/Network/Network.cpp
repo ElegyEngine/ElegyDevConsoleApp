@@ -148,12 +148,17 @@ void Network::UpdateWhileConnected()
 			}
 			else if ( data[0] == 'M' )
 			{
-				ConsoleMessage message{};
-				message.type = static_cast<ConsoleMessageType::Enum>( data[1] );
-				message.timeSubmitted = 0.0f;
+				const int TypeOffset = 1;
+				const int TimeOffset = TypeOffset + sizeof( byte );
+				const int LengthOffset = TimeOffset + sizeof( float );
+				const int TextOffset = LengthOffset + sizeof( uint16_t );
 
-				size_t messageLength = size_t( data[2] ) + (size_t( data[3] ) << 8);
-				message.text = std::string( reinterpret_cast<const char*>(&data[4]), messageLength );
+				ConsoleMessage message{};
+				message.type = static_cast<ConsoleMessageType::Enum>( data[TypeOffset] );
+				message.timeSubmitted = *reinterpret_cast<const float*>( &data[TimeOffset] );
+
+				size_t messageLength = *reinterpret_cast<const uint16_t*>( &data[LengthOffset] );
+				message.text = std::string( reinterpret_cast<const char*>( &data[TextOffset] ), messageLength );
 
 				onReceiveMessage( message );
 				
