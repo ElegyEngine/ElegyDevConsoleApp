@@ -196,7 +196,7 @@ void Network::UpdateWhileDisconnecting()
 	ENetEvent netEvent{};
 	for ( int i = 0; i < 10; i++ )
 	{
-		enet_host_service( consoleAppHost, &netEvent, 20 );
+		enet_host_service( consoleAppHost, &netEvent, 5 );
 	}
 
 	state = State::Connecting;
