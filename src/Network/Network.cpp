@@ -132,6 +132,16 @@ void Network::UpdateWhileConnecting()
 // ============================
 void Network::UpdateWhileConnected()
 {
+	if ( sendCommand )
+	{
+		std::vector<byte> packetBytes = EncodeMessage( command );
+
+		ENetPacket* packet = enet_packet_create( packetBytes.data(), packetBytes.size(), ENET_PACKET_FLAG_RELIABLE);
+		enet_host_broadcast( consoleAppHost, 0, packet );
+
+		sendCommand = false;
+	}
+
 	int numMessagesAdded = 0;
 	ENetEvent netEvent{};
 	while ( enet_host_service( consoleAppHost, &netEvent, 0 ) > 0 )
@@ -200,4 +210,26 @@ void Network::UpdateWhileDisconnecting()
 	}
 
 	state = State::Connecting;
+}
+
+// ============================
+// Network::EncodeMessage
+// ============================
+std::vector<byte> Network::EncodeMessage( std::string_view message )
+{
+	std::vector<byte> bytes;
+	bytes.reserve( 1 + 1 + message.size() );
+
+	// 1st byte: message type (C = concommand)
+	bytes.push_back( 'C' );
+	// 3rd byte: string length
+	bytes.push_back( message.size() );
+
+	// rest: string data
+	for ( int i = 0; i < message.size(); i++ )
+	{
+		bytes.push_back( message[i] );
+	}
+
+	return bytes;
 }

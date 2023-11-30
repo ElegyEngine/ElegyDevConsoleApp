@@ -41,6 +41,8 @@ private:
 	void UpdateWhileConnected();
 	void UpdateWhileDisconnecting();
 
+	static std::vector<byte> EncodeMessage( std::string_view message );
+
 private:
 	std::string command{};
 	bool sendCommand{ false };
